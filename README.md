@@ -1,0 +1,2 @@
+# secrets
+Secrets management plugin
