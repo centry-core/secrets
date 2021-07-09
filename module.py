@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# coding=utf-8
-
 #   Copyright 2021 getcarrier.io
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +48,6 @@ class Module(module.ModuleModel):
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
-        log.info("De-initializing module")
+        log.info("De-initializing module Secrets")
     #
 
