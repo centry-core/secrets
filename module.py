@@ -20,7 +20,7 @@ from ..shared.utils.api_utils import add_resource_to_api
 
 
 class Module(module.ModuleModel):
-    """ Galloper module """
+    """ Pylon module """
 
     def __init__(self, settings, root_path, context):
         self.settings = settings

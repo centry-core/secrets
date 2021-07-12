@@ -1,10 +1,10 @@
 from typing import Tuple
 
-from ...shared.utils.restApi import RestResource
-from ...shared.utils.api_utils import build_req_parser
-
 from ..connectors.secrets import (get_project_secrets, set_project_secrets,
                                   get_project_hidden_secrets, set_project_hidden_secrets)
+
+from ...shared.utils.restApi import RestResource
+from ...shared.utils.api_utils import build_req_parser
 
 
 class SecretApi(RestResource):  # pylint: disable=C0111
