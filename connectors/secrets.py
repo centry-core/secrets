@@ -4,8 +4,8 @@ import requests
 from jinja2 import Template
 from flask import current_app
 
-from ...shared import constants as c
 from ...shared.connectors.vault import create_client, get_root_client
+from ...shared import constants as c
 from ...projects.models.project import Project
 
 
