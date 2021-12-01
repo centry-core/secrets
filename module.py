@@ -23,10 +23,9 @@ from ..shared.utils.api_utils import add_resource_to_api
 class Module(module.ModuleModel):
     """ Pylon module """
 
-    def __init__(self, settings, root_path, context):
-        self.settings = settings
-        self.root_path = root_path
+    def __init__(self, context, descriptor):
         self.context = context
+        self.descriptor = descriptor
 
     def init(self):
         """ Init module """
@@ -52,4 +51,3 @@ class Module(module.ModuleModel):
         """ De-init module """
         log.info("De-initializing module Secrets")
     #
-
