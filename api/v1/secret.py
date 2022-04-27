@@ -1,23 +1,26 @@
 from typing import Tuple
 
-from ..connectors.secrets import (get_project_secrets, set_project_secrets,
-                                  get_project_hidden_secrets, set_project_hidden_secrets)
+from flask_restful import Resource
 
-from ...shared.utils.restApi import RestResource
-from ...shared.utils.api_utils import build_req_parser
+from ...connectors.secrets import get_project_secrets, set_project_secrets, get_project_hidden_secrets, \
+    set_project_hidden_secrets
 
 
-class SecretApi(RestResource):  # pylint: disable=C0111
-    post_rules = (
-        dict(name="secret", type=str, required=True, default=None, location="json"),
-    )
+# from ...shared.utils.restApi import RestResource
+# from ...shared.utils.api_utils import build_req_parser
 
-    def __init__(self):
-        super().__init__()
-        self.__init_req_parsers()
 
-    def __init_req_parsers(self):
-        self._parser_post = build_req_parser(rules=self.post_rules)
+class API(Resource):  # pylint: disable=C0111
+    # post_rules = (
+    #     dict(name="secret", type=str, required=True, default=None, location="json"),
+    # )
+    #
+    # def __init__(self):
+    #     super().__init__()
+    #     self.__init_req_parsers()
+    #
+    # def __init_req_parsers(self):
+    #     self._parser_post = build_req_parser(rules=self.post_rules)
 
     def get(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=R0201,C0111
         # Check project_id for validity
