@@ -47,6 +47,8 @@ class Module(module.ModuleModel):
         self.context.rpc_manager.register_function(set_project_hidden_secrets, name='project_set_hidden_secrets')
         self.context.rpc_manager.register_function(set_project_secrets, name='project_set_secrets')
 
+        # self.descriptor.register_tool('secrets', self)
+
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
         log.info("De-initializing module Secrets")
