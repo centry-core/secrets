@@ -7,6 +7,10 @@ from tools import secrets_tools
 
 
 class API(Resource):  # pylint: disable=C0111
+    url_params = [
+        '<int:project_id>',
+    ]
+
     def __init__(self, module):
         self.module = module
         
