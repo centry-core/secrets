@@ -16,9 +16,6 @@
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 from pylon.core.tools import module  # pylint: disable=E0611,E0401
 
-from .api.secrets import SecretsAPIBulkDelete
-from ..shared.utils.api_utils import add_resource_to_api
-
 
 class Module(module.ModuleModel):
     """ Pylon module """
@@ -30,24 +27,8 @@ class Module(module.ModuleModel):
     def init(self):
         """ Init module """
         log.info("Initializing module Secrets")
-        from .api.secrets import SecretsAPI
-        from .api.secret import SecretApi
-        add_resource_to_api(self.context.api, SecretsAPI, "/secrets/<int:project_id>")
-        add_resource_to_api(self.context.api, SecretApi, "/secrets/<int:project_id>/<string:secret>")
-        add_resource_to_api(self.context.api, SecretsAPIBulkDelete, "/secrets/bulk_delete/<int:project_id>")
-
-        from .connectors.secrets import unsecret, get_project_hidden_secrets, set_project_secrets, \
-            set_project_hidden_secrets, get_project_secrets, initialize_project_space, remove_project_space
-
-        self.context.rpc_manager.register_function(unsecret, name="unsecret_key")
-        self.context.rpc_manager.register_function(initialize_project_space, name="init_project_space")
-        self.context.rpc_manager.register_function(remove_project_space)
-        self.context.rpc_manager.register_function(get_project_secrets, name="get_secrets")
-        self.context.rpc_manager.register_function(get_project_hidden_secrets, name="get_hidden")
-        self.context.rpc_manager.register_function(set_project_hidden_secrets, name='project_set_hidden_secrets')
-        self.context.rpc_manager.register_function(set_project_secrets, name='project_set_secrets')
+        self.descriptor.init_api()
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
         log.info("De-initializing module Secrets")
-    #
