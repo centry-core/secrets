@@ -15,6 +15,7 @@
 """ Module """
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 from pylon.core.tools import module  # pylint: disable=E0611,E0401
+from tools import theme
 
 
 class Module(module.ModuleModel):
@@ -28,6 +29,18 @@ class Module(module.ModuleModel):
         """ Init module """
         log.info("Initializing module Secrets")
         self.descriptor.init_api()
+        self.descriptor.init_rpcs()
+        self.descriptor.init_blueprint()
+
+        theme.register_subsection(
+            "configuration", "secrets",
+            "Secrets",
+            title="Secrets",
+            kind="slot",
+            prefix="secrets_",
+            weight=5,
+        )
+        self.descriptor.init_slots()
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
