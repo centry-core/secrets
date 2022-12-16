@@ -19,7 +19,9 @@ class API(Resource):  # pylint: disable=C0111
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
         # Get secrets
         secrets_dict = secrets_tools.get_project_secrets(project.id)
-        resp = [{"name": k, "secret": "******"} for k in secrets_dict.keys()]
+        resp = []
+        for key in secrets_dict.keys():
+            resp.append({"name": key, "secret": "******"})
         return resp, 200
 
     def post(self, project_id: int) -> Tuple[dict, int]:  # pylint: disable=C0111

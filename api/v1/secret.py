@@ -20,7 +20,7 @@ class API(Resource):  # pylint: disable=C0111
         # Get secret
         secrets = secrets_tools.get_project_secrets(project.id)
         _secret = secrets.get(secret) if secrets.get(secret) else secrets_tools.get_project_hidden_secrets(project.id).get(secret)
-        return make_response({"secret": _secret}, 200)
+        return {"secret": _secret}, 200
 
     def post(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
         data = request.json
@@ -30,19 +30,21 @@ class API(Resource):  # pylint: disable=C0111
         secrets = secrets_tools.get_project_secrets(project.id)
         secrets[secret] = data["secret"]
         secrets_tools.set_project_secrets(project.id, secrets)
-        return make_response({"message": f"Project secret was saved"}, 200)
+        return make_response({"message": "Project secret was saved"}, 200)
 
     def put(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
+        data = request.json
         # Check project_id for validity
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
         # Set secret
         secrets = secrets_tools.get_project_secrets(project.id)
-        hidden_secrets = secrets_tools.get_project_hidden_secrets(project.id)
-        hidden_secrets[secret] = secrets[secret]
-        secrets.pop(secret, None)
+        try:
+            del secrets[data['secret']['old_name']]
+        except KeyError:
+            return make_response({"message": "Project secret was not found"}, 404)
+        secrets[secret] = data["secret"]['value']
         secrets_tools.set_project_secrets(project.id, secrets)
-        secrets_tools.set_project_hidden_secrets(project.id, hidden_secrets)
-        return make_response({"message": f"Project secret was moved to hidden secrets"}, 200)
+        return make_response({"message": "Project secret was updated"}, 200)
 
     def delete(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
