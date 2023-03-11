@@ -6,7 +6,18 @@ const SecretCreateModal = {
                 value: '',
             },
             isLoading: false,
+            isUnsecret: false,
         }
+    },
+    computed: {
+        isValueEmpty(){
+            return !this.secretData.value || !this.secretData.name
+        },
+    },
+    mounted() {
+        $("#secretCreateModal").on("hidden.bs.modal", e => {
+            this.isUnsecret=false
+        });
     },
     methods: {
         saveSecret() {
@@ -46,6 +57,7 @@ const SecretCreateModal = {
                                 <button type="button" 
                                     class="btn btn-basic d-flex align-items-center"
                                     @click="saveSecret"
+                                    :disabled="isValueEmpty"
                                 >Save<i v-if="isLoading" class="preview-loader__white ml-2"></i></button>
                             </div>
                         </div>
@@ -62,12 +74,34 @@ const SecretCreateModal = {
                                         placeholder="Secret name">
                                 </div>
                                 <div class="custom-input mb-3 w-100">
-                                    <label for="SecretValue" class="font-weight-bold mb-1">Value</label>
-                                    <input
+                                    <div class="d-flex">
+                                    <div>
+                                        <label for="SecretValue" class="font-weight-bold mb-1">Value</label>
+                                    </div>
+                                    <div class="ml-auto d-flex">
+                                        <div class="mr-2">
+                                            Unmask
+                                        </div>
+                                        <div>
+                                            <label class="custom-toggle">
+                                                <input
+                                                    name="toggle-group"
+                                                    type="checkbox"
+                                                    v-model="isUnsecret"
+                                                    >
+                                                <span class="custom-toggle_slider round"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <textarea 
+                                        class="form-control"
+                                        :class="{'password-mask': !isUnsecret}"
+                                        v-model="secretData.value" 
+                                        rows="8" 
                                         id="SecretValue"
-                                        type="password"
-                                        v-model="secretData.value"
-                                        placeholder="Secret value">
+                                    ></textarea>
+
                                 </div>
                             </div>
                         </div>
