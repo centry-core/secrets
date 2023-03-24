@@ -40,6 +40,18 @@ class Module(module.ModuleModel):
             prefix="secrets_",
             weight=5,
         )
+
+        theme.register_mode_subsection(
+            "administration", "configuration",
+            "secrets", "Secrets",
+            title="Secrets",
+            kind="slot",
+            permissions=["global_admin"],
+            prefix="administration_secrets_",
+            # icon_class="fas fa-server fa-fw",
+            # weight=2,
+        )
+
         self.descriptor.init_slots()
 
     def deinit(self):  # pylint: disable=R0201

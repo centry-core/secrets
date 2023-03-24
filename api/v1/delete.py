@@ -1,27 +1,45 @@
 from typing import Tuple
 
-from flask import request, make_response
-from flask_restful import Resource
+from flask import request
 
-from tools import secrets_tools
+from tools import api_tools, VaultClient
 
 
-class API(Resource):
-    url_params = [
-        '<int:project_id>',
-    ]
-
-    def __init__(self, module):
-        self.module = module
-
+class ProjectAPI(api_tools.APIModeHandler):
     def post(self, project_id: int) -> Tuple[dict, int]:
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
+        vault_client = VaultClient.from_project(project)
         data = request.json
-        secrets = secrets_tools.get_project_secrets(project.id)
+        secrets = vault_client.get_project_secrets()
         for secret in data.get('secrets', []):
             try:
                 del secrets[secret]
             except KeyError:
                 ...
-        secrets_tools.set_project_secrets(project.id, secrets)
-        return make_response({"message": "deleted"}, 200)
+        vault_client.set_project_secrets(secrets)
+        return {"message": "deleted"}, 204
+
+
+class AdminAPI(api_tools.APIModeHandler):
+    def post(self, project_id: int) -> Tuple[dict, int]:
+        data = request.json
+        vault_client = VaultClient()
+        secrets = vault_client.get_project_secrets()
+        for secret in data.get('secrets', []):
+            try:
+                del secrets[secret]
+            except KeyError:
+                ...
+        vault_client.set_project_secrets(secrets)
+        return {"message": "deleted"}, 204
+
+
+class API(api_tools.APIBase):
+    url_params = [
+        '<string:mode>/<int:project_id>'
+    ]
+
+    mode_handlers = {
+        'default': ProjectAPI,
+        'administration': AdminAPI,
+    }

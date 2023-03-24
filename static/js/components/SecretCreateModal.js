@@ -11,7 +11,8 @@ const SecretCreateModal = {
     methods: {
         saveSecret() {
             this.isLoading = true;
-            fetch(`/api/v1/secrets/secret/${getSelectedProjectId()}/${this.secretData.name}`,{
+            const api_url = this.$root.build_api_url('secrets', 'secret')
+            fetch(`${api_url}/${getSelectedProjectId()}/${this.secretData.name}`,{
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', dataType: 'json'},
                 body: JSON.stringify({

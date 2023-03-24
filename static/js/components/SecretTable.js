@@ -3,8 +3,16 @@ const SecretTable = {
     data() {
         return {
             checkedSecretsList: [],
-            table_attributes: {
-                'data-url': `/api/v1/secrets/secrets/${getSelectedProjectId()}`,
+        }
+    },
+    computed: {
+        isAnySecretSelected() {
+            return this.checkedSecretsList.length > 0;
+        },
+        table_attributes() {
+            const api_url = this.$root.build_api_url('secrets', 'secrets')
+            return {
+                'data-url': `${api_url}/${getSelectedProjectId()}`,
                 'data-page-size': 10,
                 'data-page-list': "[5, 10, 15]",
                 id: 'secret-table',
@@ -12,11 +20,6 @@ const SecretTable = {
                 'data-pagination-parts': ['pageInfoShort', 'pageSize', 'pageList']
             }
         }
-    },
-    computed: {
-        isAnySecretSelected() {
-            return this.checkedSecretsList.length > 0;
-        },
     },
     watch: {
         isInitDataFetched() {

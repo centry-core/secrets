@@ -70,8 +70,10 @@ var secretEvents = {
         "click .secret_view": async function (e, value, row, index) {
             console.debug('View the secret for row: ', row)
             e.stopPropagation();
+            let _secret;
             if (row.secret === '******') {
-                const resp = await fetch(`/api/v1/secrets/secret/${getSelectedProjectId()}/${row.name}`)
+                const api_url = V.build_api_url('secrets', 'secret')
+                const resp = await fetch(`${api_url}/${getSelectedProjectId()}/${row.name}`)
                 if (resp.ok) {
                     try {
                         const data = await resp.json()
@@ -95,7 +97,7 @@ var secretEvents = {
         "click .secret_copy": async function (e, value, row, index) {
             console.debug('Copy the secret template for row: ', row)
             e.stopPropagation();
-            secret_template = `{{${row.name}}}`
+            const secret_template = `{{${row.name}}}`
             try {
                 /**
                 * Copies the text to the system clipboard.
