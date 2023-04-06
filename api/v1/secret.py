@@ -1,5 +1,4 @@
 from typing import Tuple
-
 from flask import request
 
 from tools import api_tools, VaultClient
@@ -93,10 +92,14 @@ class AdminAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
 
 class API(api_tools.APIBase):
     url_params = [
-        '<string:mode>/<int:project_id>/<string:secret>'
+        '<string:project_id>/<string:secret>',
+        '<string:mode>/<string:project_id>/<string:secret>',
     ]
 
     mode_handlers = {
         'default': ProjectAPI,
         'administration': AdminAPI,
     }
+
+# from pylon.core.tools import log
+# log.info('API SECRET s')

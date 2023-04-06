@@ -63,12 +63,12 @@ const Secret = {
                 .map(secret => secret.name.toLowerCase());
             this.loadingDelete = true;
             const api_url = this.$root.build_api_url('secrets', 'delete')
-            fetch(`/${api_url}/${getSelectedProjectId()}/`,{
+            fetch(`${api_url}/${getSelectedProjectId()}/`,{
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', dataType: 'json'},
                 body: JSON.stringify({'secrets': selectedSecretList})
             }).then((response) => {
-                if (response.status === 200) {
+                if (response.ok) {
                     this.refreshSecretTable();
                     this.loadingDelete = false;
                     this.showConfirmDelete = !this.showConfirmDelete;

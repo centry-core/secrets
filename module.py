@@ -15,7 +15,7 @@
 """ Module """
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 from pylon.core.tools import module  # pylint: disable=E0611,E0401
-from tools import theme
+from tools import theme, VaultClient, constants as c
 
 
 class Module(module.ModuleModel):
@@ -53,6 +53,27 @@ class Module(module.ModuleModel):
         )
 
         self.descriptor.init_slots()
+
+        vault_client = VaultClient()
+        initial_secrets = {
+            'galloper_url': c.APP_HOST,
+            'redis_host': c.APP_IP,
+            'loki_host': c.EXTERNAL_LOKI_HOST.replace("https://", "http://"),
+            'influx_ip': c.APP_IP,
+            'influx_port': c.INFLUX_PORT,
+            'loki_port': c.LOKI_PORT,
+            'redis_password': c.REDIS_PASSWORD,
+            'rabbit_host': c.APP_IP,
+            'rabbit_user': c.RABBIT_USER,
+            'rabbit_password': c.RABBIT_PASSWORD,
+            'influx_user': c.INFLUX_USER,
+            'influx_password': c.INFLUX_PASSWORD,
+            'gf_api_key': c.GF_API_KEY,
+        }
+        existing_secrets = vault_client.get_all_secrets()
+        initial_secrets.update(existing_secrets)
+        vault_client.set_secrets(initial_secrets)
+        log.info('secrets set %s', initial_secrets)
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
