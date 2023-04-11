@@ -7,24 +7,24 @@ const SecretUpdateModal = {
                 value: '',
             },
             isLoading: false,
+            isUnsecret: false,
         }
+    },
+    computed: {
+        isValueEmpty(){
+            return !this.secretData.value
+        },
     },
     mounted() {
         const vm = this;
-        $("#secretUpdateModal").on("show.bs.modal", function (e) {
-            vm.fetchSecret().then((secret) => {
-                vm.secretData.name = vm.selectedSecret.name;
-                vm.secretData.value = secret.secret;
-            })
+        $("#secretUpdateModal").on("show.bs.modal", e => {
+            vm.secretData.name = this.selectedSecret.name;
+        });
+        $("#secretCreateModal").on("hidden.bs.modal", e => {
+            this.isUnsecret=false
         });
     },
     methods: {
-        async fetchSecret() {
-            // TODO rewrite session
-            const api_url = this.$root.build_api_url('secrets', 'secret')
-            const resp = await fetch(`${api_url}/${getSelectedProjectId()}/${this.selectedSecret.name}`)
-            return resp.json();
-        },
         saveSecret() {
             this.isLoading = true;
             const api_url = this.$root.build_api_url('secrets', 'secret')
@@ -68,6 +68,7 @@ const SecretUpdateModal = {
                         <button type="button" 
                             class="btn btn-basic d-flex align-items-center"
                             @click="saveSecret"
+                            :disabled="isValueEmpty"
                         >Save<i v-if="isLoading" class="preview-loader__white ml-2"></i></button>
                     </div>
                 </div>
@@ -81,15 +82,30 @@ const SecretUpdateModal = {
                                 id="SecretUpdateName"
                                 type="text"
                                 v-model="secretData.name"
-                                placeholder="Secret name">
+                                placeholder="Secret name" disabled>
                         </div>
                         <div class="custom-input mb-3 w-100">
-                            <label for="SecretUpdateValue" class="font-weight-bold mb-1">Value</label>
-                            <input
-                                id="SecretUpdateValue"
-                                type="password"
-                                v-model="secretData.value"
-                                placeholder="Secret value">
+                            <div class="d-flex">
+                                <div>
+                                    <label for="SecretUpdateValue" class="font-weight-bold mb-1">Value</label>
+                                </div>
+                                <div class="ml-auto d-flex">
+                                    <div class="mr-2">
+                                        Unmask
+                                    </div>
+                                    <div>
+                                        <label class="custom-toggle">
+                                            <input
+                                                name="toggle-group"
+                                                type="checkbox"
+                                                v-model="isUnsecret"
+                                                >
+                                            <span class="custom-toggle_slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea class="form-control"  :class="{'password-mask': !isUnsecret}" v-model="secretData.value" rows="8" id="SecretUpdateValue"></textarea>
                         </div>
                     </div>
                 </div>
