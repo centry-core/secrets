@@ -15,9 +15,7 @@
 """ Module """
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 from pylon.core.tools import module  # pylint: disable=E0611,E0401
-
-from .api.secrets import SecretsAPIBulkDelete
-from ..shared.utils.api_utils import add_resource_to_api
+from tools import theme, VaultClient, constants as c
 
 
 class Module(module.ModuleModel):
@@ -30,24 +28,53 @@ class Module(module.ModuleModel):
     def init(self):
         """ Init module """
         log.info("Initializing module Secrets")
-        from .api.secrets import SecretsAPI
-        from .api.secret import SecretApi
-        add_resource_to_api(self.context.api, SecretsAPI, "/secrets/<int:project_id>")
-        add_resource_to_api(self.context.api, SecretApi, "/secrets/<int:project_id>/<string:secret>")
-        add_resource_to_api(self.context.api, SecretsAPIBulkDelete, "/secrets/bulk_delete/<int:project_id>")
+        self.descriptor.init_api()
+        self.descriptor.init_rpcs()
+        self.descriptor.init_blueprint()
 
-        from .connectors.secrets import unsecret, get_project_hidden_secrets, set_project_secrets, \
-            set_project_hidden_secrets, get_project_secrets, initialize_project_space, remove_project_space
+        theme.register_subsection(
+            "configuration", "secrets",
+            "Secrets",
+            title="Secrets",
+            kind="slot",
+            prefix="secrets_",
+            weight=5,
+        )
 
-        self.context.rpc_manager.register_function(unsecret, name="unsecret_key")
-        self.context.rpc_manager.register_function(initialize_project_space, name="init_project_space")
-        self.context.rpc_manager.register_function(remove_project_space)
-        self.context.rpc_manager.register_function(get_project_secrets, name="get_secrets")
-        self.context.rpc_manager.register_function(get_project_hidden_secrets, name="get_hidden")
-        self.context.rpc_manager.register_function(set_project_hidden_secrets, name='project_set_hidden_secrets')
-        self.context.rpc_manager.register_function(set_project_secrets, name='project_set_secrets')
+        theme.register_mode_subsection(
+            "administration", "configuration",
+            "secrets", "Secrets",
+            title="Secrets",
+            kind="slot",
+            permissions=["global_admin"],
+            prefix="administration_secrets_",
+            # icon_class="fas fa-server fa-fw",
+            # weight=2,
+        )
+
+        self.descriptor.init_slots()
+
+        vault_client = VaultClient()
+        initial_secrets = {
+            'galloper_url': c.APP_HOST,
+            'redis_host': c.APP_IP,
+            'loki_host': c.EXTERNAL_LOKI_HOST.replace("https://", "http://"),
+            'influx_ip': c.APP_IP,
+            'influx_port': c.INFLUX_PORT,
+            'loki_port': c.LOKI_PORT,
+            'redis_password': c.REDIS_PASSWORD,
+            'rabbit_host': c.APP_IP,
+            'rabbit_user': c.RABBIT_USER,
+            'rabbit_password': c.RABBIT_PASSWORD,
+            'influx_user': c.INFLUX_USER,
+            'influx_password': c.INFLUX_PASSWORD,
+            'gf_api_key': c.GF_API_KEY,
+        }
+        existing_secrets = vault_client.get_all_secrets()
+        initial_secrets.update(existing_secrets)
+        vault_client.set_secrets(initial_secrets)
+        log.info('secrets set %s', initial_secrets)
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
         log.info("De-initializing module Secrets")
-    #
