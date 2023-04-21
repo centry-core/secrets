@@ -1,11 +1,11 @@
 from typing import Tuple
 from flask import request
 
-from tools import api_tools, VaultClient
+from tools import api_tools, VaultClient, auth
 
 
 class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
-
+    @auth.decorators.check_api(["configuration.secrets.secret.view"])
     def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
         # Check project_id for validity
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
@@ -20,6 +20,7 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
         #     resp.append({"name": f'!_HIDDEN_{key}', "secret": "******"}) # todo: remove
         return resp, 200
 
+    @auth.decorators.check_api(["configuration.secrets.secret.create"])
     def post(self, project_id: int) -> Tuple[dict, int]:  # pylint: disable=C0111
         # Check project_id for validity
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
@@ -30,6 +31,24 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
 
 
 class AdminAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
+    @auth.decorators.check_api(["configuration.secrets.secret.view"])
+    def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
+        # Get secrets
+        vault_client = VaultClient()
+        secrets_dict = vault_client.get_project_secrets()
+        resp = []
+        for key in secrets_dict.keys():
+            resp.append({"name": key, "secret": "******"})
+        return resp, 200
+    
+    @auth.decorators.check_api(["configuration.secrets.secret.create"])
+    def post(self, project_id: int) -> Tuple[dict, int]:  # pylint: disable=C0111
+        # Set secrets
+        vault_client = VaultClient()
+        vault_client.set_project_secrets(request.json["secrets"])
+        return {"message": f"Project secrets were saved"}, 200
+
+    @auth.decorators.check_api(["configuration.secrets.secret.edit"])    
     def patch(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
         # Get secrets
         vault_client = VaultClient()
@@ -55,20 +74,7 @@ class AdminAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
             'pv_h_secrets': vc2.get_project_hidden_secrets(),
             'pv_all_secrets': vc2.get_all_secrets(),
         }, 200
-    def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
-        # Get secrets
-        vault_client = VaultClient()
-        secrets_dict = vault_client.get_project_secrets()
-        resp = []
-        for key in secrets_dict.keys():
-            resp.append({"name": key, "secret": "******"})
-        return resp, 200
 
-    def post(self, project_id: int) -> Tuple[dict, int]:  # pylint: disable=C0111
-        # Set secrets
-        vault_client = VaultClient()
-        vault_client.set_project_secrets(request.json["secrets"])
-        return {"message": f"Project secrets were saved"}, 200
 
 
 class API(api_tools.APIBase):

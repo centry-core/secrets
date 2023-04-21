@@ -1,10 +1,11 @@
 from typing import Tuple
 from flask import request
 
-from tools import api_tools, VaultClient
+from tools import api_tools, VaultClient, auth
 
 
 class ProjectAPI(api_tools.APIModeHandler):
+    @auth.decorators.check_api(["configuration.secrets.secret.delete"])
     def post(self, project_id: int) -> Tuple[dict, int]:
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
         vault_client = VaultClient.from_project(project)
@@ -20,6 +21,7 @@ class ProjectAPI(api_tools.APIModeHandler):
 
 
 class AdminAPI(api_tools.APIModeHandler):
+    @auth.decorators.check_api(["configuration.secrets.secret.delete"])
     def post(self, **kwargs) -> Tuple[dict, int]:
         data = request.json
         vault_client = VaultClient()

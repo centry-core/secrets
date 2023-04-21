@@ -1,9 +1,10 @@
 from typing import Tuple
 
-from tools import api_tools, VaultClient
+from tools import api_tools, VaultClient, auth
 
 
 class ProjectAPI(api_tools.APIModeHandler):
+    @auth.decorators.check_api(["configuration.secrets.secret.edit"])
     def post(self, project_id: int, secret: str) -> Tuple[dict, int]:
         # Check project_id for validity
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
@@ -22,6 +23,7 @@ class ProjectAPI(api_tools.APIModeHandler):
 
 
 class AdminAPI(api_tools.APIModeHandler):
+    @auth.decorators.check_api(["configuration.secrets.secret.edit"])
     def post(self, project_id: int, secret: str) -> Tuple[dict, int]:
         return {"message": "There are no hidden secrets in administration mode"}, 401
 
