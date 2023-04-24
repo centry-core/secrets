@@ -37,6 +37,13 @@ class Module(module.ModuleModel):
             "Secrets",
             title="Secrets",
             kind="slot",
+            permissions={
+                "permissions": ["configuration.secrets"],
+                "recommended_roles": {
+                    "administration": {"admin": True, "viewer": False, "editor": False},
+                    "default": {"admin": True, "viewer": False, "editor": False},
+                    "developer": {"admin": True, "viewer": False, "editor": False},
+                }},
             prefix="secrets_",
             weight=5,
         )
@@ -46,7 +53,13 @@ class Module(module.ModuleModel):
             "secrets", "Secrets",
             title="Secrets",
             kind="slot",
-            permissions=["global_admin"],
+            permissions={
+                "permissions": ["configuration.secrets"],
+                "recommended_roles": {
+                    "administration": {"admin": True, "viewer": False, "editor": False},
+                    "default": {"admin": True, "viewer": False, "editor": False},
+                    "developer": {"admin": True, "viewer": False, "editor": False},
+                }},
             prefix="administration_secrets_",
             # icon_class="fas fa-server fa-fw",
             # weight=2,
