@@ -48,34 +48,6 @@ class AdminAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
         vault_client.set_secrets(request.json["secrets"])
         return {"message": f"Project secrets were saved"}, 200
 
-    # @auth.decorators.check_api(["configuration.secrets.secret.edit"])
-    # def patch(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
-    #     # Get secrets
-    #     vault_client = VaultClient()
-    #     secrets_dict = vault_client.get_secrets()
-    #     resp = []
-    #     for key in secrets_dict.keys():
-    #         resp.append({"name": key, "secret": "******"})
-    #     vc2 = VaultClient.from_project(project_id)
-    #     return {
-    #         'v': {
-    #             'vault_name': vault_client.vault_name,
-    #             'auth': vault_client.auth
-    #         },
-    #         'v2': {
-    #             'vault_name': vc2.vault_name,
-    #             'auth': vc2.auth.dict()
-    #         },
-    #         'v_secrets': vault_client.get_project_secrets(),
-    #         'v_h_secrets': vault_client.get_project_hidden_secrets(),
-    #         'v_all_secrets': vault_client.get_all_secrets(),
-    #         'resp': resp,
-    #         'pv_secrets': vc2.get_project_secrets(),
-    #         'pv_h_secrets': vc2.get_project_hidden_secrets(),
-    #         'pv_all_secrets': vc2.get_all_secrets(),
-    #     }, 200
-
-
 
 class API(api_tools.APIBase):
     url_params = [
@@ -87,6 +59,3 @@ class API(api_tools.APIBase):
         'default': ProjectAPI,
         'administration': AdminAPI,
     }
-
-# from pylon.core.tools import log
-# log.info('API SECRET+s s')
