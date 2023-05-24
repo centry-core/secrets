@@ -10,13 +10,13 @@ class ProjectAPI(api_tools.APIModeHandler):
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
         vault_client = VaultClient.from_project(project)
         data = request.json
-        secrets = vault_client.get_project_secrets()
+        secrets = vault_client.get_secrets()
         for secret in data.get('secrets', []):
             try:
                 del secrets[secret]
             except KeyError:
                 ...
-        vault_client.set_project_secrets(secrets)
+        vault_client.set_secrets(secrets)
         return {"message": "deleted"}, 204
 
 
@@ -25,13 +25,13 @@ class AdminAPI(api_tools.APIModeHandler):
     def post(self, **kwargs) -> Tuple[dict, int]:
         data = request.json
         vault_client = VaultClient()
-        secrets = vault_client.get_project_secrets()
+        secrets = vault_client.get_secrets()
         for secret in data.get('secrets', []):
             try:
                 del secrets[secret]
             except KeyError:
                 ...
-        vault_client.set_project_secrets(secrets)
+        vault_client.set_secrets(secrets)
         return {"message": "deleted"}, 204
 
 

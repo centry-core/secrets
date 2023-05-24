@@ -10,15 +10,15 @@ class ProjectAPI(api_tools.APIModeHandler):
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
         # Set secret
         vault_client = VaultClient.from_project(project_id)
-        secrets = vault_client.get_project_secrets()
+        secrets = vault_client.get_secrets()
         hidden_secrets = vault_client.get_project_hidden_secrets()
         try:
             hidden_secrets[secret] = secrets[secret]
         except KeyError:
             return {"message": "Project secret was not found"}, 404
         secrets.pop(secret, None)
-        vault_client.set_project_secrets(secrets)
-        vault_client.set_project_hidden_secrets(hidden_secrets)
+        vault_client.set_secrets(secrets)
+        vault_client.set_hidden_secrets(hidden_secrets)
         return {"message": "Project secret was moved to hidden secrets"}, 200
 
 
