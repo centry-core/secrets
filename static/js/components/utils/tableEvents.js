@@ -2,22 +2,22 @@ var secretEvents = {
     actions(value, row, index) {
         return `
             <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_view" 
+                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_view mr-2" 
                         data-toggle="tooltip" data-placement="top" title="View secret">
                     <i class="icon__18x18 icon-eye"></i>
                 </button>
                 <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_copy" 
+                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_copy mr-2" 
                         data-toggle="tooltip" data-placement="top" title="Copy secret">
                     <i class="icon__18x18 icon-copy"></i>
                 </button>
                 <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_edit" 
+                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_edit mr-2" 
                         data-toggle="tooltip" data-placement="top" title="Edit secret">
                     <i class="icon__18x18 icon-edit"></i>
                 </button>
                 <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_hide" 
+                <button type="button" class="btn btn-default btn-xs btn-table btn-icon__xs secret_hide mr-2" 
                         data-toggle="tooltip" data-placement="top" title="Hide secret">
                     <i class="icon__18x18 icon-lock"></i>
                 </button>
