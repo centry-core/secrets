@@ -58,14 +58,14 @@ const SecretTable = {
                     <button type="button"
                         data-toggle="modal" 
                         data-target="#secretCreateModal"
-                        class="btn btn-secondary btn-sm btn-icon__sm mr-2">
-                        <i class="fas fa-plus"></i>
+                        class="btn btn-secondary btn-icon btn-icon__purple mr-2">
+                        <i class="icon__14x14 icon-plus__big"></i>
                     </button>
                     <button type="button" 
                         @click="$emit('open-confirm-delete', 'multiple')"
                         :disabled="!isAnySecretSelected"
-                        class="btn btn-secondary btn-sm btn-icon__sm mr-2">
-                        <i class="fas fa-trash-alt"></i>
+                        class="btn btn-secondary btn-icon btn-icon__purple mr-2">
+                        <i class="icon__18x18 icon-delete"></i>
                     </button>
                 </div>
             </template>

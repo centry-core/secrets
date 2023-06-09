@@ -113,7 +113,7 @@ const Secret = {
             </secret-delete-confirm-modal>
             <secret-hide-confirm-modal
                 v-if="showConfirmHide"
-                @close-confirm="openConfirm"
+                @close-confirm="openConfirmHide"
                 :loading-hide="loadingHide"
                 @hide-secret="hideSecret">
             </secret-hide-confirm-modal>
