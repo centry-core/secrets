@@ -81,7 +81,7 @@ class Module(module.ModuleModel):
         persistent_secrets = {
             'galloper_url': c.APP_HOST,
             'redis_host': c.REDIS_HOST,
-            'loki_host': c.EXTERNAL_LOKI_HOST.replace("https://", "http://"),
+            'loki_host': c.EXTERNAL_LOKI_HOST,
             'influx_ip': c.APP_IP,
             'rabbit_host': c.APP_IP,
         }
