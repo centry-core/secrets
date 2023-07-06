@@ -77,6 +77,7 @@ class Module(module.ModuleModel):
             'influx_user': c.INFLUX_USER,
             'influx_password': c.INFLUX_PASSWORD,
             'gf_api_key': c.GF_API_KEY,
+            'backend_performance_results_retention': c.BACKEND_PERFORMANCE_RESULTS_RETENTION
         }
         persistent_secrets = {
             'galloper_url': c.APP_HOST,
