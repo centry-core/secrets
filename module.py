@@ -76,7 +76,7 @@ class Module(module.ModuleModel):
             'rabbit_password': c.RABBIT_PASSWORD,
             'influx_user': c.INFLUX_USER,
             'influx_password': c.INFLUX_PASSWORD,
-            'gf_api_key': c.GF_API_KEY,
+            # 'gf_api_key': c.GF_API_KEY,
             'backend_performance_results_retention': c.BACKEND_PERFORMANCE_RESULTS_RETENTION
         }
         persistent_secrets = {
@@ -87,8 +87,12 @@ class Module(module.ModuleModel):
             'rabbit_host': c.APP_IP,
         }
         existing_secrets = vault_client.get_all_secrets()
-        initial_secrets.update(existing_secrets)
-        initial_secrets.update(persistent_secrets)
+        if c.PERSISTENT_SECRETS:
+            initial_secrets.update(existing_secrets)
+            initial_secrets.update(persistent_secrets)
+        else:
+            initial_secrets.update(persistent_secrets)
+            initial_secrets.update(existing_secrets)
         vault_client.set_secrets(initial_secrets)
         log.info('secrets set %s', initial_secrets)
 
