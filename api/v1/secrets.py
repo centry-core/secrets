@@ -12,12 +12,11 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
         vault_client = VaultClient.from_project(project)
         # Get secrets
         secrets_dict = vault_client.get_secrets()
-        # hs = vault_client.get_project_hidden_secrets() # todo: remove
         resp = []
         for key in secrets_dict.keys():
             resp.append({"name": key, "secret": "******"})
-        # for key in hs.keys(): # todo: remove
-        #     resp.append({"name": f'!_HIDDEN_{key}', "secret": "******"}) # todo: remove
+        # for k, v in vault_client.get_project_hidden_secrets().items(): # todo: remove
+        #     resp.append({"name": f'!_HIDDEN_{k}', "secret": v}) # todo: remove
         return resp, 200
 
     @auth.decorators.check_api(["configuration.secrets.secret.create"])
