@@ -47,6 +47,14 @@ var secretEvents = {
             }
         }
     },
+    cell_secret_style(value, row, index) {
+        return {
+            css: {
+                "overflow": "hidden",
+                "word-break": "break-all",
+            }
+        }
+    },
     action_events: {
         "click .secret_edit": function (e, value, row, index) {
             // apiActions.run(row.id, row.name)
