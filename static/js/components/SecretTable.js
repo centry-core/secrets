@@ -72,7 +72,10 @@ const SecretTable = {
             <template #table_headers>
                 <th scope="col" data-checkbox="true"></th>
                 <th scope="col" data-sortable="true" style="width: 200px;" data-field="name">NAME</th>
-                <th scope="col" data-sortable="true" data-field="secret" class="w-100">VALUE</th>
+                <th scope="col" data-sortable="true" 
+                    data-cell-style="secretEvents.cell_secret_style"
+                    data-field="secret" 
+                    class="w-100">VALUE</th>
                 <th scope="col" data-align="right" data-sortable="true"
                     data-cell-style="secretEvents.cell_style"
                     data-formatter=secretEvents.actions
