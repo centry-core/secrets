@@ -1,60 +1,44 @@
-from typing import Tuple
+from typing import Tuple, List
 from flask import request
 
-from tools import api_tools, VaultClient, auth
+from tools import api_tools, VaultClient, auth, config as c
+
+from pydantic import ValidationError
+from ...pd.secrets import SecretList, SecretCreate
+from ..v0.secrets import AdminAPI
 
 
 class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
     @auth.decorators.check_api(["configuration.secrets.secret.view"])
     def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
-        # Check project_id for validity
-        project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
-        vault_client = VaultClient.from_project(project)
-        # Get secrets
+        vault_client = VaultClient.from_project(project_id)
         secrets_dict = vault_client.get_secrets()
-        resp = []
-        for key in secrets_dict.keys():
-            resp.append({"name": key, "secret": "******"})
-        # for k, v in vault_client.get_project_hidden_secrets().items(): # todo: remove
-        #     resp.append({"name": f'!_HIDDEN_{k}', "secret": v}) # todo: remove
-        return resp, 200
+        return [SecretList(name=i).dict() for i in secrets_dict.keys()], 200
 
     @auth.decorators.check_api(["configuration.secrets.secret.create"])
-    def post(self, project_id: int) -> Tuple[dict, int]:  # pylint: disable=C0111
-        # Check project_id for validity
-        project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
-        vault_client = VaultClient.from_project(project)
-        # Set secrets
-        vault_client.set_secrets(request.json["secrets"])
-        return {"message": f"Project secrets were saved"}, 200
+    def post(self, project_id: int) -> Tuple[dict | list, int]:  # pylint: disable=C0111
+        try:
+            parsed = SecretCreate.parse_obj(dict(request.json))
+        except ValidationError as e:
+            return e.errors(), 400
 
+        vault_client = VaultClient.from_project(project_id)
+        secrets = vault_client.get_secrets()
 
-class AdminAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
-    @auth.decorators.check_api(["configuration.secrets.secret.view"])
-    def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
-        # Get secrets
-        vault_client = VaultClient()
-        secrets_dict = vault_client.get_secrets()
-        resp = []
-        for key in secrets_dict.keys():
-            resp.append({"name": key, "secret": "******"})
-        return resp, 200
-    
-    @auth.decorators.check_api(["configuration.secrets.secret.create"])
-    def post(self, project_id: int) -> Tuple[dict, int]:  # pylint: disable=C0111
-        # Set secrets
-        vault_client = VaultClient()
-        vault_client.set_secrets(request.json["secrets"])
-        return {"message": f"Project secrets were saved"}, 200
+        if parsed.name in secrets:
+            return {'error': f'Secret "{parsed.name}" already exists'}, 400
+
+        secrets[parsed.name] = parsed.value
+        vault_client.set_secrets(secrets)
+        return SecretList(name=parsed.name).dict(), 201
 
 
 class API(api_tools.APIBase):
-    url_params = [
+    url_params = api_tools.with_modes([
         '<string:project_id>',
-        '<string:mode>/<string:project_id>',
-    ]
+    ])
 
     mode_handlers = {
-        'default': ProjectAPI,
-        'administration': AdminAPI,
+        c.DEFAULT_MODE: ProjectAPI,
+        c.ADMINISTRATION_MODE: AdminAPI,
     }

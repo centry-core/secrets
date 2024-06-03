@@ -1,7 +1,13 @@
+from urllib.parse import unquote
+
 from typing import Tuple
 from flask import request
 
-from tools import api_tools, VaultClient, auth
+from tools import api_tools, VaultClient, auth, config as c
+
+from pydantic import ValidationError
+from ...pd.secrets import SecretDetail, SecretUpdate, SecretList
+from ..v0.secret import AdminAPI
 
 
 class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
@@ -12,32 +18,20 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
             "default": {"admin": True, "viewer": False, "editor": False},
             "developer": {"admin": True, "viewer": False, "editor": False},
         }})
-    def get(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=R0201,C0111
-        # Check project_id for validity
-        project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
-        vault_client = VaultClient.from_project(project)
-        # Get secret
+    def get(self, project_id: int, secret: str) -> Tuple[dict | None, int]:  # pylint: disable=R0201,C0111
+        secret = unquote(secret)
+        vault_client = VaultClient.from_project(project_id)
         secrets = vault_client.get_secrets()
-        _secret = secrets.get(secret) or vault_client.get_project_hidden_secrets().get(secret)
-        return {"secret": _secret}, 200
-
-    @auth.decorators.check_api({
-        "permissions": ["configuration.secrets.secret.create"],
-        "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
-        }})
-    def post(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
-        data = request.json
-        # Check project_id for validity
-        project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
-        vault_client = VaultClient.from_project(project)
-        # Set secret
-        secrets = vault_client.get_secrets()
-        secrets[secret] = data["secret"]
-        vault_client.set_secrets(secrets)
-        return {"message": "Project secret was saved"}, 200
+        result = SecretDetail(name=secret)
+        try:
+            result.value = secrets[secret]
+        except KeyError:
+            hidden_secrets = vault_client.get_project_hidden_secrets()
+            result.value = hidden_secrets.get(secret)
+            result.is_hidden = True
+        if not result.value:
+            return None, 404
+        return result.dict(), 200
 
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.edit"],
@@ -46,20 +40,24 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
             "default": {"admin": True, "viewer": False, "editor": False},
             "developer": {"admin": True, "viewer": False, "editor": False},
         }})
-    def put(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
-        data = request.json
-        # Check project_id for validity
-        project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
-        vault_client = VaultClient.from_project(project)
-        # Set secret
+    def put(self, project_id: int, secret: str) -> Tuple[dict | list, int]:  # pylint: disable=C0111
+        secret = unquote(secret)
+        raw = dict(request.json)
+        raw['name'] = secret
+        try:
+            parsed = SecretUpdate.parse_obj(raw)
+        except ValidationError as e:
+            return e.errors(), 400
+
+        vault_client = VaultClient.from_project(project_id)
         secrets = vault_client.get_secrets()
         try:
-            del secrets[data['secret']['old_name']]
+            del secrets[secret]
         except KeyError:
-            return {"message": "Project secret was not found"}, 404
-        secrets[secret] = data["secret"]['value']
+            return {"message": f"Secret {secret} was not found"}, 400
+        secrets[parsed.name] = parsed.value
         vault_client.set_secrets(secrets)
-        return {"message": "Project secret was updated"}, 200
+        return SecretList(name=parsed.name).dict(), 200
 
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.delete"],
@@ -68,94 +66,22 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
             "default": {"admin": True, "viewer": False, "editor": False},
             "developer": {"admin": True, "viewer": False, "editor": False},
         }})
-    def delete(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
-        project = self.module.context.rpc_manager.call.project_get_or_404(project_id)
-        vault_client = VaultClient.from_project(project)
+    def delete(self, project_id: int, secret: str) -> Tuple[None, int]:  # pylint: disable=C0111
+        secret = unquote(secret)
+        vault_client = VaultClient.from_project(project_id)
         secrets = vault_client.get_secrets()
         if secret in secrets:
             del secrets[secret]
         vault_client.set_secrets(secrets)
-        return {"message": "deleted"}, 204
-
-
-class AdminAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
-    @auth.decorators.check_api({
-        "permissions": ["configuration.secrets.secret.view"],
-        "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
-        }})
-    def get(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=R0201,C0111
-        vault_client = VaultClient()
-        # Get secret
-        secrets = vault_client.get_secrets()
-        # _secret = secrets.get(secret) or vault_client.get_project_hidden_secrets().get(secret)
-        _secret = secrets.get(secret)
-        return {"secret": _secret}, 200
-
-    @auth.decorators.check_api({
-        "permissions": ["configuration.secrets.secret.create"],
-        "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
-        }})
-    def post(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
-        data = request.json
-        # Set secret
-        vault_client = VaultClient()
-        secrets = vault_client.get_secrets()
-        secrets[secret] = data["secret"]
-        vault_client.set_secrets(secrets)
-        return {"message": "Project secret was saved"}, 200
-
-    @auth.decorators.check_api({
-        "permissions": ["configuration.secrets.secret.edit"],
-        "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
-        }})
-    def put(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
-        data = request.json
-        # Set secret
-        vault_client = VaultClient()
-        secrets = vault_client.get_secrets()
-        try:
-            del secrets[data['secret']['old_name']]
-        except KeyError:
-            return {"message": "Project secret was not found"}, 404
-        secrets[secret] = data["secret"]['value']
-        vault_client.set_secrets(secrets)
-        return {"message": "Project secret was updated"}, 200
-
-    @auth.decorators.check_api({
-        "permissions": ["configuration.secrets.secret.delete"],
-        "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
-        }})
-    def delete(self, project_id: int, secret: str) -> Tuple[dict, int]:  # pylint: disable=C0111
-        vault_client = VaultClient()
-        secrets = vault_client.get_secrets()
-        if secret in secrets:
-            del secrets[secret]
-        vault_client.set_secrets(secrets)
-        return {"message": "deleted"}, 204
+        return None, 204
 
 
 class API(api_tools.APIBase):
-    url_params = [
-        '<string:project_id>/<string:secret>',
-        '<string:mode>/<string:project_id>/<string:secret>',
-    ]
+    url_params = api_tools.with_modes([
+        '<string:project_id>/<string:secret>'
+    ])
 
     mode_handlers = {
-        'default': ProjectAPI,
-        'administration': AdminAPI,
+        c.DEFAULT_MODE: ProjectAPI,
+        c.ADMINISTRATION_MODE: AdminAPI,
     }
-
-# from pylon.core.tools import log
-# log.info('API SECRET s')

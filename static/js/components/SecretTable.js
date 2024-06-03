@@ -10,7 +10,7 @@ const SecretTable = {
             return this.checkedSecretsList.length > 0;
         },
         table_attributes() {
-            const api_url = this.$root.build_api_url('secrets', 'secrets')
+            const api_url = this.$root.build_api_url('secrets', 'secrets', {api_version: 0})
             return {
                 'data-url': `${api_url}/${getSelectedProjectId()}`,
                 'data-page-size': 10,

@@ -80,7 +80,7 @@ var secretEvents = {
             e.stopPropagation();
             let _secret;
             if (row.secret === '******') {
-                const api_url = V.build_api_url('secrets', 'secret')
+                const api_url = V.build_api_url('secrets', 'secret', {api_version: 0})
                 const resp = await fetch(`${api_url}/${getSelectedProjectId()}/${row.name}`)
                 if (resp.ok) {
                     try {
