@@ -14,9 +14,8 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.view"],
         "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": False},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": False},
         }})
     def get(self, project_id: int, secret: str) -> Tuple[dict | None, int]:  # pylint: disable=R0201,C0111
         secret = unquote(secret)
@@ -36,9 +35,8 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.edit"],
         "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": True},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
         }})
     def put(self, project_id: int, secret: str) -> Tuple[dict | list, int]:  # pylint: disable=C0111
         secret = unquote(secret)
@@ -62,9 +60,8 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.delete"],
         "recommended_roles": {
-            "administration": {"admin": True, "viewer": False, "editor": False},
-            "default": {"admin": True, "viewer": False, "editor": False},
-            "developer": {"admin": True, "viewer": False, "editor": False},
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": True},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
         }})
     def delete(self, project_id: int, secret: str) -> Tuple[None, int]:  # pylint: disable=C0111
         secret = unquote(secret)
