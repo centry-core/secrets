@@ -12,7 +12,7 @@ from ..v0.secret import AdminAPI
 
 class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
     @auth.decorators.check_api({
-        "permissions": ["configuration.secrets.secret.view"],
+        "permissions": ["configuration.secrets.secret.unsecret"],
         "recommended_roles": {
             c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": False},
             c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": False},

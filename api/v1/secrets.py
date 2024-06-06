@@ -9,7 +9,7 @@ from ..v0.secrets import AdminAPI
 
 
 class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
-    @auth.decorators.check_api(["configuration.secrets.secret.view"])
+    @auth.decorators.check_api(["configuration.secrets.secret.list"])
     def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
         vault_client = VaultClient.from_project(project_id)
         secrets_dict = vault_client.get_secrets()
