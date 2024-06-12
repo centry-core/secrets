@@ -27,7 +27,7 @@ const SecretUpdateModal = {
     methods: {
         saveSecret() {
             this.isLoading = true;
-            const api_url = this.$root.build_api_url('secrets', 'secret')
+            const api_url = this.$root.build_api_url('secrets', 'secret', {api_version: 0})
             fetch(`${api_url}/${getSelectedProjectId()}/${this.secretData.name}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json', dataType: 'json'},

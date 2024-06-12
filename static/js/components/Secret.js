@@ -31,7 +31,7 @@ const Secret = {
         },
         hideSecret() {
             this.loadingHide = true;
-            const api_url = this.$root.build_api_url('secrets', 'hide')
+            const api_url = this.$root.build_api_url('secrets', 'hide', {api_version: 0})
             fetch(`${api_url}/${getSelectedProjectId()}/${this.selectedSecret.name}`, {
                 method: 'POST'
             }).then((data) => {
@@ -47,7 +47,7 @@ const Secret = {
         },
         deleteSecret() {
             this.loadingDelete = true;
-            const api_url = this.$root.build_api_url('secrets', 'secret')
+            const api_url = this.$root.build_api_url('secrets', 'secret', {api_version: 0})
             fetch(`${api_url}/${getSelectedProjectId()}/${this.selectedSecret.name}`, {
                 method: 'DELETE',
             }).then((data) => {
@@ -62,7 +62,7 @@ const Secret = {
             const selectedSecretList = $("#secret-table").bootstrapTable('getSelections')
                 .map(secret => secret.name.toLowerCase());
             this.loadingDelete = true;
-            const api_url = this.$root.build_api_url('secrets', 'delete')
+            const api_url = this.$root.build_api_url('secrets', 'delete', {api_version: 0})
             fetch(`${api_url}/${getSelectedProjectId()}/`,{
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', dataType: 'json'},
