@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, constr
 
 
 class SecretList(BaseModel):
@@ -13,13 +13,20 @@ class SecretList(BaseModel):
 
 
 class SecretCreate(BaseModel):
-    name: str
+    name: constr(regex='^[A-Za-z0-9_-]*$', min_length=1)
     value: Optional[str] = None
+
+    @validator('name')
+    def name_must_not_start_or_end_with_dash(cls, v):
+        if v[0] == '-' or v[-1] == '-':
+            raise ValueError('name must not start or end with a dash')
+        return v
 
 
 class SecretUpdate(SecretCreate):
     ...
 
 
-class SecretDetail(SecretList, SecretCreate):
+class SecretDetail(SecretList):
     is_hidden: Optional[bool] = False
+    value: Optional[str] = None
