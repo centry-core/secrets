@@ -67,7 +67,7 @@ const SecretCreateModal = {
                         <div class="section">
                             <div class="row" id="secretFields">
                                 <div class="custom-input mb-3 w-100">
-                                    <label for="SecretName" class="font-weight-bold mb-1">Name</label>
+                                    <label for="SecretName" class="font-weight-bold mb-1 font-h5">Name</label>
                                     <input
                                         id="SecretName"
                                         type="text"
@@ -77,10 +77,10 @@ const SecretCreateModal = {
                                 <div class="custom-input mb-3 w-100">
                                     <div class="d-flex">
                                     <div>
-                                        <label for="SecretValue" class="font-weight-bold mb-1">Value</label>
+                                        <label for="SecretValue" class="font-weight-bold font-h5 mb-1">Value</label>
                                     </div>
                                     <div class="ml-auto d-flex">
-                                        <div class="mr-2">
+                                        <div class="mr-2 font-h6">
                                             Unmask
                                         </div>
                                         <div>
