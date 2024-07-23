@@ -13,7 +13,7 @@ class SecretList(BaseModel):
 
 
 class SecretCreate(BaseModel):
-    name: constr(regex='^[A-Za-z0-9_-]*$', min_length=1)
+    name: constr(regex='^[A-Za-z0-9_]*$', min_length=1)
     value: Optional[str] = None
 
     @validator('name')
