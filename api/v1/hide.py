@@ -5,7 +5,12 @@ from ..v0.hide import AdminAPI
 
 
 class ProjectAPI(api_tools.APIModeHandler):
-    @auth.decorators.check_api(["configuration.secrets.secret.hide"])
+    @auth.decorators.check_api({
+        "permissions": ["configuration.secrets.secret.hide"],
+        "recommended_roles": {
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": True},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
+        }})
     def post(self, project_id: int, secret: str) -> Tuple[dict, int]:
         vault_client = VaultClient.from_project(project_id)
         secrets = vault_client.get_secrets()

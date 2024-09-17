@@ -9,13 +9,23 @@ from ..v0.secrets import AdminAPI
 
 
 class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
-    @auth.decorators.check_api(["configuration.secrets.secret.list"])
+    @auth.decorators.check_api({
+        "permissions": ["configuration.secrets.secret.list"],
+        "recommended_roles": {
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": True},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
+        }})
     def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
         vault_client = VaultClient.from_project(project_id)
         secrets_dict = vault_client.get_secrets()
         return [SecretList(name=i).dict() for i in secrets_dict.keys()], 200
 
-    @auth.decorators.check_api(["configuration.secrets.secret.create"])
+    @auth.decorators.check_api({
+        "permissions": ["configuration.secrets.secret.create"],
+        "recommended_roles": {
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": True},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
+        }})
     def post(self, project_id: int) -> Tuple[dict | list, int]:  # pylint: disable=C0111
         try:
             parsed = SecretCreate.parse_obj(dict(request.json))

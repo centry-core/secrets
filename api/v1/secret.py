@@ -14,8 +14,8 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.unsecret"],
         "recommended_roles": {
-            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": False},
-            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": False},
+            c.ADMINISTRATION_MODE: {"admin": True, "viewer": False, "editor": True},
+            c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
         }})
     def get(self, project_id: int, secret: str) -> Tuple[dict | None, int]:  # pylint: disable=R0201,C0111
         secret = unquote(secret)
