@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, validator, constr
+from pydantic.v1 import BaseModel, validator, constr
 
 
 class SecretList(BaseModel):

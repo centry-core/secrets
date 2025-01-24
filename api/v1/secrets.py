@@ -3,7 +3,7 @@ from flask import request
 
 from tools import api_tools, VaultClient, auth, config as c
 
-from pydantic import ValidationError
+from pydantic.v1 import ValidationError
 from ...pd.secrets import SecretList, SecretCreate
 from ..v0.secrets import AdminAPI
 
