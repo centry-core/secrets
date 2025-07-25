@@ -94,7 +94,6 @@ class Module(module.ModuleModel):
             initial_secrets.update(persistent_secrets)
             initial_secrets.update(existing_secrets)
         vault_client.set_secrets(initial_secrets)
-        log.debug('secrets set %s', initial_secrets)
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
