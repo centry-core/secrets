@@ -16,9 +16,23 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
             c.DEFAULT_MODE: {"admin": True, "viewer": False, "editor": True},
         }})
     def get(self, project_id: int) -> Tuple[list, int]:  # pylint: disable=R0201,C0111
+        # Get project secrets
         vault_client = VaultClient.from_project(project_id)
         secrets_dict = vault_client.get_secrets()
-        return [SecretList(name=i).dict() for i in secrets_dict.keys()], 200
+
+        # Get admin secrets to identify default/system secrets
+        admin_vault = VaultClient()
+        admin_secrets = admin_vault.get_secrets()
+        admin_secret_keys = set(admin_secrets.keys())
+
+        # Build response with is_default flag for each secret
+        response = []
+        for secret_name in secrets_dict.keys():
+            secret_data = SecretList(name=secret_name).dict()
+            secret_data['is_default'] = secret_name in admin_secret_keys
+            response.append(secret_data)
+
+        return response, 200
 
     @auth.decorators.check_api({
         "permissions": ["configuration.secrets.secret.create"],
