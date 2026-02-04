@@ -1,7 +1,7 @@
 from typing import Tuple, List
 from flask import request
 
-from tools import api_tools, VaultClient, auth, config as c
+from tools import api_tools, VaultClient, auth, config as c, this
 
 from pydantic.v1 import ValidationError
 from ...pd.secrets import SecretList, SecretCreate
@@ -20,16 +20,15 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
         vault_client = VaultClient.from_project(project_id)
         secrets_dict = vault_client.get_secrets()
 
-        # Get admin secrets to identify default/system secrets
-        admin_vault = VaultClient()
-        admin_secrets = admin_vault.get_secrets()
-        admin_secret_keys = set(admin_secrets.keys())
+        # Get default secret keys from elitea_core config
+        elitea_core_config = this.for_module("elitea_core").descriptor.config
+        default_keys = set(elitea_core_config.get("default_secret_keys", []))
 
         # Build response with is_default flag for each secret
         response = []
         for secret_name in secrets_dict.keys():
             secret_data = SecretList(name=secret_name).dict()
-            secret_data['is_default'] = secret_name in admin_secret_keys
+            secret_data['is_default'] = secret_name in default_keys
             response.append(secret_data)
 
         return response, 200
