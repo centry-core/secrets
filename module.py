@@ -68,32 +68,15 @@ class Module(module.ModuleModel):
         self.descriptor.init_slots()
 
         vault_client = VaultClient()
-        initial_secrets = {
-            'influx_port': c.INFLUX_PORT,
-            'loki_port': c.LOKI_PORT,
-            'redis_password': c.REDIS_PASSWORD,
-            'rabbit_user': c.RABBIT_USER,
-            'rabbit_password': c.RABBIT_PASSWORD,
-            'influx_user': c.INFLUX_USER,
-            'influx_password': c.INFLUX_PASSWORD,
-            # 'gf_api_key': c.GF_API_KEY,
-            'backend_performance_results_retention': c.BACKEND_PERFORMANCE_RESULTS_RETENTION
-        }
         persistent_secrets = {
             'galloper_url': c.APP_HOST,
-            'redis_host': c.REDIS_HOST,
-            'loki_host': c.LOKI_HOST,
-            'influx_ip': c.APP_IP,
-            'rabbit_host': c.APP_IP,
         }
         existing_secrets = vault_client.get_all_secrets()
         if c.PERSISTENT_SECRETS:
-            initial_secrets.update(existing_secrets)
-            initial_secrets.update(persistent_secrets)
+            secrets = {**existing_secrets, **persistent_secrets}
         else:
-            initial_secrets.update(persistent_secrets)
-            initial_secrets.update(existing_secrets)
-        vault_client.set_secrets(initial_secrets)
+            secrets = {**persistent_secrets, **existing_secrets}
+        vault_client.set_secrets(secrets)
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
