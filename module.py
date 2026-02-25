@@ -71,7 +71,7 @@ class Module(module.ModuleModel):
         persistent_secrets = {
             'galloper_url': c.APP_HOST,
         }
-        existing_secrets = vault_client.get_all_secrets()
+        existing_secrets = vault_client.get_secrets()
         if c.PERSISTENT_SECRETS:
             secrets = {**existing_secrets, **persistent_secrets}
         else:
