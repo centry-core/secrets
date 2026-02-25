@@ -15,7 +15,7 @@
 """ Module """
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 from pylon.core.tools import module  # pylint: disable=E0611,E0401
-from tools import theme, VaultClient, constants as c
+from tools import theme
 
 
 class Module(module.ModuleModel):
@@ -66,17 +66,6 @@ class Module(module.ModuleModel):
         )
 
         self.descriptor.init_slots()
-
-        vault_client = VaultClient()
-        persistent_secrets = {
-            'galloper_url': c.APP_HOST,
-        }
-        existing_secrets = vault_client.get_secrets()
-        if c.PERSISTENT_SECRETS:
-            secrets = {**existing_secrets, **persistent_secrets}
-        else:
-            secrets = {**persistent_secrets, **existing_secrets}
-        vault_client.set_secrets(secrets)
 
     def deinit(self):  # pylint: disable=R0201
         """ De-init module """
