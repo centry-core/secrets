@@ -22,14 +22,15 @@ class ProjectAPI(api_tools.APIModeHandler):  # pylint: disable=C0111
         vault_client = VaultClient.from_project(project_id)
         secrets = vault_client.get_secrets()
         result = SecretDetail(name=secret)
-        try:
+        if secret in secrets:
             result.value = secrets[secret]
-        except KeyError:
+        else:
             hidden_secrets = vault_client.get_project_hidden_secrets()
-            result.value = hidden_secrets.get(secret)
+            if secret not in hidden_secrets:
+                return None, 404
+            result.value = hidden_secrets[secret]
             result.is_hidden = True
-        if not result.value:
-            return None, 404
+        result.value = result.value or ""
         return result.dict(), 200
 
     @auth.decorators.check_api({
